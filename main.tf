@@ -9,10 +9,10 @@ locals {
     }
   )
 
-  // find all $template_in files across all $deployment_root/base folders, to be rendered to
-  // $deployment_root/$stack_id/auto-root-$filename
+  // find all $template_in files across all $config_root/base folders, to be rendered to
+  // $config_root/$stack_id/auto-root-$filename
   root_templ_files = [
-    for path in var.deployment_roots : [
+    for path in var.config_roots : [
       for tf_name in fileset("${path}/_templates_", "${var.tpl_auto_root}-${var.tpl_name}") : {
         source = "${path}/_templates_/${tf_name}"
         dest = (
@@ -26,10 +26,10 @@ locals {
     ]
   ]
 
-  // find all $template_in files across all $deployment_root/_templates_/$stack_id/$k8s_namespace
-  // folders, to be rendered to $deployment_root/$found_path/auto-$filename
+  // find all $template_in files across all $config_root/_templates_/$stack_id/$k8s_namespace
+  // folders, to be rendered to $config_root/$found_path/auto-$filename
   namespace_templ_files = [
-    for path in var.deployment_roots : [
+    for path in var.config_roots : [
       for tf_name in fileset("${path}/_templates_", "${var.stack_id}/${var.k8s_ns}/${var.tpl_auto}-${var.tpl_name}") : {
         source = "${path}/_templates_/${tf_name}"
         dest   = "${path}/stacks/${dirname(tf_name)}/${basename(tf_name)}"

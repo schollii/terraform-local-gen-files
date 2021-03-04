@@ -9,14 +9,14 @@ variable "k8s_ns" {
   description = "The k8s namespace for the resources being provisioned. Defaults to all/any."
 }
 
-variable "deployment_roots" {
+variable "config_roots" {
   type = list(string)
   description = "List of folders in which the configuration files are located. Must contain _templates_ folder."
 }
 
 variable "tpl_name" {
   type = string
-  description = "Name of template file to look for in all deployment_root folders"
+  description = "Name of template file to look for in all config_roots folders"
 }
 
 variable "tpl_auto_root" {
