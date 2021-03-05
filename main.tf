@@ -9,19 +9,13 @@ locals {
     }
   )
 
-  // find all $template_in files across all $config_root/base folders, to be rendered to
-  // $config_root/$stack_id/auto-root-$filename
+  // find all files matching "$tpl_auto_root-$tpl_name" across all $config_root/_templates_ folders, 
+  // to be rendered to $config_root/$stack_id/auto-root-$filename
   root_templ_files = [
     for path in var.config_roots : [
       for tf_name in fileset("${path}/_templates_", "${var.tpl_auto_root}-${var.tpl_name}") : {
         source = "${path}/_templates_/${tf_name}"
-        dest = (
-          var.k8s_ns == "**" ?
-          // common to all namespaces:
-          "${path}/stacks/${var.stack_id}/${tf_name}" :
-          // for specific namespace:
-          "${path}/stacks/${var.stack_id}/${var.k8s_ns}/${tf_name}"
-        )
+        dest = "${path}/stacks/${var.stack_id}/${tf_name}"
       }
     ]
   ]
