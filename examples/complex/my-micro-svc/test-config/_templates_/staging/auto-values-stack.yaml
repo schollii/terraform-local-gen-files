@@ -1,4 +1,0 @@
-user_url: http://${cluster_name}/user/id
-security:
-  group1: ${sg_ingress}
-region: ${aws_region}

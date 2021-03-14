@@ -15,6 +15,14 @@ output "tmpl_fileset_glob_overrides" {
   value = local.tmpl_fileset_glob_overrides
 }
 
-output "no_root_tmpl_files_found" {
-  value = local.no_root_tmpl_files_found
+output "num_config_roots_no_base" {
+  value = length(local.root_tmpl_files_no_base_found)
+}
+
+output "num_config_roots_no_overrides" {
+  value = length(local.override_tmpl_files_none_found)
+}
+
+output "num_config_roots_no_tmpl_found" {
+  value = length(local.config_roots_no_tmpl_found)
 }

@@ -7,20 +7,22 @@ locals {
 
   // find all template files for $stack_id
   tmpl_fileset_glob_base = replace(var.tmpl_fileset_glob_base, "MODULE_ID", var.module_id)
+  root_tmpl_filesets_map = {
+    for conf_root in local.config_roots :
+      conf_root => fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_base)
+  }
   root_tmpl_files = [
-    for conf_root in local.config_roots : [
-      for tf_name in fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_base) : {
+    for conf_root, filesets in local.root_tmpl_filesets_map : [
+      for tf_name in filesets : {
         source = "${conf_root}/${var.tmpl_dir}/${tf_name}"
         dest   = "${conf_root}/stacks/${var.stack_id}/${tf_name}"
       }
     ]
   ]
-  no_root_tmpl_files_found = sort(compact([
-    for conf_root in local.config_roots : (
-      length(fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_base)) == 0 ?
-      "${conf_root}/${var.tmpl_dir}/${local.tmpl_fileset_glob_base}" : ""
-    )
-  ]))
+  root_tmpl_files_no_base_found = [
+    for conf_root, filesets in local.root_tmpl_filesets_map:
+      (length(filesets) == 0 ? "${conf_root}/${var.tmpl_dir}/${local.tmpl_fileset_glob_base}" : "")
+  ]
 
   // find all template files for $module_id
   tmpl_fileset_glob_overrides = format(
@@ -28,13 +30,21 @@ locals {
     var.namespace_id == null ? "**" : var.namespace_id,
     replace(var.tmpl_fileset_glob_overrides, "MODULE_ID", var.module_id)
   )
+  override_tmpl_filesets_map = {
+    for conf_root in local.config_roots :
+      conf_root => fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_overrides)
+  }
   override_tmpl_files = [
-    for conf_root in local.config_roots : [
-      for tf_name in fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_overrides) : {
+    for conf_root, filesets in local.override_tmpl_filesets_map : [
+      for tf_name in filesets : {
         source = "${conf_root}/${var.tmpl_dir}/${tf_name}"
         dest   = "${conf_root}/stacks/${tf_name}"
       }
     ]
+  ]
+  override_tmpl_files_none_found = [
+    for conf_root, filesets in local.override_tmpl_filesets_map:
+      (length(filesets) == 0 ? "${conf_root}/${var.tmpl_dir}/${local.tmpl_fileset_glob_overrides}" : "")
   ]
 
   // combine the 2 sets into one big map:
@@ -42,6 +52,11 @@ locals {
     for tf in flatten([local.root_tmpl_files, local.override_tmpl_files]) :
     tf.source => tf.dest
   }
+
+  config_roots_no_tmpl_found = sort(concat(
+    local.root_tmpl_files_no_base_found,
+    local.override_tmpl_files_none_found
+  ))
 }
 
 resource "local_file" "config_values" {
