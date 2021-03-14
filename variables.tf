@@ -47,3 +47,15 @@ variable "tmpl_vars" {
   type        = map(string)
   description = "Template variables for substitutions"
 }
+
+variable "output_config_roots_no_tmpl_found" {
+  type        = bool
+  description = "If true, the config_roots_no_tmpl_found will include list of config_roots that did not have any filesets"
+  default     = false
+}
+
+variable "save_config_roots_no_tmpl_found" {
+  type        = bool
+  description = "If true, will create file in path.root, containing config_roots that did not have any filesets"
+  default     = true
+}

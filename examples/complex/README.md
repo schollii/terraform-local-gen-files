@@ -1,6 +1,8 @@
 This example shows configuration of a micro-service deployment and 
-testing config files, and defines a helmfile that sets the load order
-of the deployment config files. 
+testing config files. Each stack defines some override templates 
 
-From your
-terraform
+From tf-staging and tf-prod: 
+terraform init
+terraform apply
+
+Then look at the my-micro-svc/*-config/stacks contents.

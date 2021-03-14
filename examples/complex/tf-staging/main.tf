@@ -3,7 +3,6 @@ module "gen_helm_values" {
   source = "../../.."
 
   stack_id     = "staging"
-  module_id    = "my-module"
   config_roots = ["../my-micro-svc/deploy-config", "../my-micro-svc/test-config"]
 
   # the keys and values in template_vars are completely arbitrary:

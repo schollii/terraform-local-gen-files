@@ -14,6 +14,10 @@ module "gen_config_values" {
   }
 }
 
+output "config_roots_no_tmpl_base" {
+  value = module.gen_config_values.num_config_roots_no_base
+}
+
 output "config_roots_no_tmpl" {
-  value = module.gen_config_values.no_root_tmpl_files_found
+  value = module.gen_config_values.num_config_roots_no_tmpl_found
 }

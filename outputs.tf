@@ -12,17 +12,25 @@ output "tmpl_fileset_glob_base" {
 }
 
 output "tmpl_fileset_glob_overrides" {
-  value = local.tmpl_fileset_glob_overrides
+  value = local.override_tmpl_fileset_glob
+}
+
+output "num_config_roots" {
+  value = length(local.config_roots)
 }
 
 output "num_config_roots_no_base" {
-  value = length(local.root_tmpl_files_no_base_found)
+  value = length(local.config_roots_no_tmpl_base)
 }
 
 output "num_config_roots_no_overrides" {
-  value = length(local.override_tmpl_files_none_found)
+  value = length(local.config_roots_no_tmpl_overrides)
 }
 
 output "num_config_roots_no_tmpl_found" {
-  value = length(local.config_roots_no_tmpl_found)
+  value = length(local.config_roots_no_tmpl)
+}
+
+output "config_roots_no_tmpl_found" {
+  value = var.output_config_roots_no_tmpl_found ? keys(local.config_roots_no_tmpl) : ["<unknown>"]
 }
