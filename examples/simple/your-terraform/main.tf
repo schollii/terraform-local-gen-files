@@ -1,5 +1,6 @@
 module "gen_helm_values" {
-  source = "git::https://github.com/schollii/terraform-local-gen-files.git"
+  # source = "git::https://github.com/schollii/terraform-local-gen-files.git"
+  source = "../../.."
 
   stack_id     = "staging"
   config_roots = ["../my-svc-1/config"]

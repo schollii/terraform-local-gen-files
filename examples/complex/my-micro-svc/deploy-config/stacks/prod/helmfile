@@ -1,0 +1,9 @@
+releases:
+  - name: something 
+    ...
+    values:
+      - ../common-values.yaml
+      - static-values.yaml
+      - base-auto-values-stack.yaml
+      - base-auto-values-my-module.yaml
+      - namespace-1/auto-values-stack.yaml

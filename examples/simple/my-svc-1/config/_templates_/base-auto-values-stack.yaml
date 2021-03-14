@@ -1,3 +1,0 @@
-ENV_VAR_1: http://${cluster_name}/user/id
-ENV_VAR_2: ${sg_ingress}
-ENV_VAR_3: ${aws_region}
