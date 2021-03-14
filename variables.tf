@@ -1,37 +1,49 @@
-variable "stack_id" {
-  type = string
-  description = "An identifier for the whole stack being provisioned in AWS"
+variable "module_id" {
+  type    = string
+  description = "An ID for the terraform module calling terraform-local-gen-files"
+  default = "stack"
 }
 
-variable "k8s_ns" {
+variable "stack_id" {
+  type = string
+  description = "An ID for the whole stack being provisioned in AWS from the root module"
+}
+
+variable "namespace_id" {
   type    = string
-  default = "**"
-  description = "The k8s namespace for the resources being provisioned. Defaults to all/any."
+  description = "An ID for the namespace for the resources being provisioned"
+  default = null
 }
 
 variable "config_roots" {
   type = list(string)
-  description = "List of folders in which the configuration files are located. Must contain _templates_ folder."
+  description = "List of folders in which the configuration files are located; only those that contain $tmpl_dir will be processed"
 }
 
-variable "tpl_name" {
+variable "comment_line" {
+  description = "String used for comments in the rendered config files (so a warning about auto-generation can be printed)"
+  default = "#"
+}
+
+variable "tmpl_dir" {
   type = string
-  description = "Name of template file to look for in all config_roots folders"
+  description = "Directory name for root of templates, in each config root dir"
+  default = "_templates_"
 }
 
-variable "tpl_auto_root" {
+variable "tmpl_fileset_glob_base" {
   type = string
-  description = "Filename prefix for root auto files"
-  default = "auto-root"
+  description = "Glob pattern for template file names for stack (see terraform fileset function)"
+  default = "base-auto-values-MODULE_ID.yaml"
 }
 
-variable "tpl_auto" {
+variable "tmpl_fileset_glob_overrides" {
   type = string
-  description = "Filename prefix for non-root auto files"
-  default = "auto"
+  description = "Glob pattern for template file names for calling module (see terraform fileset function)"
+  default = "auto-values-MODULE_ID.yaml"
 }
 
-variable "template_vars" {
+variable "tmpl_vars" {
   type = map(string)
   description = "Template variables for substitutions"
 }

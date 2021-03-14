@@ -1,0 +1,2 @@
+user_url: http://${cluster_name}/user/id
+rds: ${rds_endpoint}

@@ -1,71 +1,82 @@
-This modules makes it easy to extract terraform state at at the time of `terraform apply` and automatically update helm values files, kustomize 
-files or other config files related to kubernetes clusters. This
-module is especially useful to those not using the kubernetes or 
-helm providers. 
+This modules makes it easy to extract terraform state at at the time of
+`terraform apply` and automatically update config files used by other
+systems outside of terraform but which depend on some infrastructure 
+state or settings. 
 
-Using it is very simple, and best understood by looking at the
-examples. But say you have YOUR_TF_MODULE/main.tf, and you need to 
-get the AWS RDS address into the helm chart values file of YOUR_APP_DIR: 
+Currently, the module focusses on kubernetes and hence the docs are 
+written based on "stacks", "namespaces" and "config" files. This module 
+has been used in several closed source projects to generate helm values 
+files and kustomize files. This module is especially useful to those 
+not using the kubernetes or helm providers. 
 
-- in YOUR_TF_MODULE/main.tf, write something like this: 
+Using it is very simple, and best understood by looking in the
+examples folder. Simplest example: you have `YOUR_TF_MODULE/main.tf`, 
+and you need to get the AWS RDS DB address into the helm chart values 
+file of YOUR_APP_DIR which represents a container deployed in your 
+kubernetes cluster: 
+
+- In `YOUR_APP_DIR/config/_templates_/auto-root-values.yaml` 
+  put the following: 
+  ```
+  user_url: http://${cluster_name}/user/id
+  security:
+    group1: ${sg_ingress}
+  region: ${aws_region}
+  ```
+
+- in `YOUR_TF_MODULE/main.tf`, put this: 
   ```
   module "gen_helm_values" {
-    source = "git::https://github.com/schollii/terraform-local-gen-k8s-configs.git"
+    source = "git::https://github.com/schollii/terraform-local-gen-files.git"
 
-    stack_id         = "YOUR_CLUSTER_NAME"
-    config_roots = "/path/to/YOUR_APP_DIR/helm_values"
-    tpl_name         = "values.yaml"
+    stack_id     = "YOUR_CLUSTER_NAME"
+    config_roots = ["YOUR_APP_DIR/config"]
+    tpl_name     = "values.yaml"
 
     # the keys and values in template_vars are completely arbitrary:
     template_vars = {
-      cluster_name           = "YOUR_CLUSTER_NAME"
-      sg_ingress_lb_external = aws_security_group.cluster_wan_alb.id
-      aws_region             = var.region
+      cluster_name  = "YOUR_CLUSTER_NAME"
+      sg_ingress    = aws_security_group.cluster_alb.id
+      aws_region    = var.region
     }
   }
   ```
 
-- This will load the `$config_roots/_templates_/$tpl_name` file as 
-    a terraform template and replace all occurrences of the keys of 
-    `template_vars` by the corresponding values, and write the result 
-    to `$config_roots/stacks/$cluster_name/auto-root-$tpl_name`. The file
-    `$config_roots/_templates_/$tpl_name` could eg have the following: 
-    ```
-    user_url: http://${cluster_name}/user/id
-    security:
-      group1: ${sg_ingress_lb_external}
-    region: ${aws_region}
-    ```
+- In `YOUR_TF_MODULE`, run `terraform apply`: this will load the 
+  `YOUR_APP_DIR/config/_templates_/auto-root-values.yaml` 
+  file as a terraform template, replace all occurrences of the keys of 
+  `template_vars` by the corresponding values, and write the result 
+  to `YOUR_APP_DIR/config/stacks/YOUR_CLUSTER_NAME/auto-root-values.yaml`. 
 
-- The result is that whenever you `terraform apply` in your YOUR_TF_MODULE
-  the file `$config_roots/stacks/auto-root-values.yaml` will be 
-  generated, if it has changed as a result of new terraform state. 
+This scales nicely:
 
-This is quite powerful. Eg:
+- you can have multiple stacks/clusters: each app will have the 
+  correct values for all the different stacks they need values from, 
+  in clearly recognizable folders. 
+- you can "specialize" the templates for individual namespaces (check 
+  out `k8s_ns` variable), and for individual clusters
+- you can have a global config file at the root of the stacks folder
+  (it is therefore static)
+- you can have a large number of services, you don't need to remember 
+  which service depends on which terraform state data; once in the 
+  template, and in your terraform config files, the association is
+  easy to identify at any time
+- independent modules of your terraform config can each be responsible
+  for their own outputs, no need to trickle outputs all the way to 
+  the top. Eg `YOUR_APP_DIR/config/_templates_/module1.yaml`
+  and `$YOUR_APP_DIR/config/_templates_/module2.yaml`
+- when `terraform apply` changes something in the infrastructure that 
+  impacts services, it is clear which services are impacted. You can 
+  then run helm install/upgrade or kubectl apply on only those 
+  services. 
 
-- you could have multiple stacks/clusters, and the values pertaining 
-  to each cluster will be in the correct subfolder whenever you 
-  terraform apply for that stack/cluster.  
-- you could specify a kubernetes namespace via the `k8s_ns` variable, 
-  and have additional "specialization" of base template for a namespace, 
-  such as 
-  `$config_roots/_templates_/$k8s_ns/$tpl_name`
-  or even for a specific stack specific namespace in 
-  `$config_roots/_templates_/$stack_id/$k8s_ns/$tpl_name`
-  In that case the file
-  `$config_roots/stacks/$stack_id/$k8s_ns/auto-values.yaml`
-  will get regenerated whenever the cluster changes for that stack. 
-  Then you could run 
-  ```
-  helm upgrade --install -f $config_roots/stacks/$stack_id/auto-root-values.yaml \
-     -f $config_roots/stacks/$stack_id/$k8s_ns/auto-values.yaml
-  ```
-- you could have different modules used by your root terraform
-  module each write their own values files. Eg given module1 and 
-  module2, you could have `$config_roots/_templates_/module1.yaml`
-  and `$config_roots/_templates_/module2.yaml` and module1 and 2
-  would each have a module "gen_helm_values" with state they 
-  are responsible for.
+The main challenge is to decide on the order in which to combine all 
+the generated config files. However for helm and kustomize this is 
+typically fairly obvious: from most to least specific, ie global/base,
+auto-root, auto-cluster, auto-namespace; and at each level, the 
+generated configs take precedence over any static ones. Since the 
+files are known for each service, a helmfile can be useful to 
+capture the list of config files and their order. 
 
 Contributions
 =============
