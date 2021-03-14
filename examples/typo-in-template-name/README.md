@@ -1,0 +1,1 @@
+Example of config root that has template named incorrectly. 
