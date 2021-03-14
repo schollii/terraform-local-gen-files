@@ -1,6 +1,6 @@
 output "config_files_created_last_apply" {
   description = "List of config files generated from this terraform config"
-  value = [for src, dest in local.all_tmpl_files: dest]
+  value       = [for src, dest in local.all_tmpl_files : dest]
 }
 
 output "config_roots" {
