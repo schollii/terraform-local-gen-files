@@ -7,12 +7,12 @@ systems or tools separate from terraform such as helm or kubectl, but
 which depend on some infrastructure state or settings such as database
 addresses, security group ids, etc. 
 
-This module has been used in several closed source projects to generate 
+This module has been <a id="my-anchor">used</a> in several closed source projects to generate 
 helm values files and could surely be used to generate kustomize files, 
 ansible files, etc. This module is especially useful to those 
 not using the kubernetes or helm providers. 
 
-![image](docs/configs-with-infra-data-from-tfstate.png)
+<a id="image">![image](docs/configs-with-infra-data-from-tfstate.png)</a>
 
 The main concepts in this module "stacks", "namespaces" and "config" 
 files: 
@@ -28,7 +28,7 @@ files:
 - a namespace is a subdivision of this stack into blocks. Think 
   kubernetes, but this is just the term used for subdivision.
 - a config is a text file or set of text files that contain settings
-  that are required to do something outside of terraform with the 
+  that are required to do something external to terraform with the 
   resources of the stack/namespace. This could be the values files 
   for a particular deployment of an "app" in a namespace of the 
   stack (vpc + cluster).
