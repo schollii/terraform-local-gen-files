@@ -1,21 +1,39 @@
-This modules makes it easy to extract terraform state at at the time of
+This module makes it easy to extract terraform state at the time of
 `terraform apply` and automatically update config files used by other
-systems outside of terraform but which depend on some infrastructure 
-state or settings. 
+systems or tools separate from terraform such as helm or kubectl, but 
+which depend on some infrastructure state or settings such as database
+addresses, security group ids, etc. 
 
-Currently, the module focusses on kubernetes and hence the docs are 
-written based on "stacks", "namespaces" and "config" files. This module 
-has been used in several closed source projects to generate helm values 
-files and kustomize files. This module is especially useful to those 
+This module has been used in several closed source projects to generate 
+helm values files and could surely be used to generate kustomize files, 
+ansible files, etc. This module is especially useful to those 
 not using the kubernetes or helm providers. 
 
-Using it is very simple, and best understood by looking in the
+The main concepts in this module "stacks", "namespaces" and "config" 
+files: 
+- a stack is an instance of a set of resources that describe a complete
+  environment. Eg a VPC, subnets etc, plus an EKS cluster, plus 
+  IAM, security groups, databases, lambdas, all for one environment, 
+  is a stack. There could be a dev stack, a staging stack, a prod 
+  stack. In the dev stack there could be multiple instances of an 
+  application, each for a different developer. The precise meaning 
+  will depend on your situation, but the term is used to refer to the
+  totality of a set of resources that logically belong together. 
+- a namespace is a subdivision of this stack into blocks. Think 
+  kubernetes, but this is just the term used for subdivision.
+- a config is a text file or set of text files that contain settings
+  that are required to do something outside of terraform with the 
+  resources of the stack/namespace. This could be the values files 
+  for a particular deployment of an "app" in a namespace of the 
+  stack (vpc + cluster).
+
+Using this is very simple, and best understood by looking in the
 examples folder. Simplest example: you have `YOUR_TF_MODULE/main.tf`, 
 and you need to get the AWS RDS DB address into the helm chart values 
 file of YOUR_APP_DIR which represents a container deployed in your 
 kubernetes cluster: 
 
-- In `YOUR_APP_DIR/config/_templates_/auto-root-values.yaml` 
+- In `YOUR_APP_DIR/config/_templates_/base-auto-root-values.yaml` 
   put the following: 
   ```
   user_url: http://${cluster_name}/user/id
@@ -36,17 +54,17 @@ kubernetes cluster:
     # the keys and values in template_vars are completely arbitrary:
     template_vars = {
       cluster_name  = "YOUR_CLUSTER_NAME"
-      sg_ingress    = aws_security_group.cluster_alb.id
-      aws_region    = var.region
+      sg_ingress    = "SOME_SG_ID"
+      aws_region    = "us-east-1"
     }
   }
   ```
 
-- In `YOUR_TF_MODULE`, run `terraform apply`: this will load the 
-  `YOUR_APP_DIR/config/_templates_/auto-root-values.yaml` 
+- In `YOUR_TF_MODULE`, run `terraform init` then `terraform apply`: 
+  this will load the `YOUR_APP_DIR/config/_templates_/base-auto-root-values.yaml` 
   file as a terraform template, replace all occurrences of the keys of 
-  `template_vars` by the corresponding values, and write the result 
-  to `YOUR_APP_DIR/config/stacks/YOUR_CLUSTER_NAME/auto-root-values.yaml`. 
+  `tmpl_vars` by the corresponding values, and write the result to 
+  `YOUR_APP_DIR/config/stacks/YOUR_CLUSTER_NAME/base-auto-root-values.yaml`. 
 
 This scales nicely:
 
@@ -54,7 +72,7 @@ This scales nicely:
   correct values for all the different stacks they need values from, 
   in clearly recognizable folders. 
 - you can "specialize" the templates for individual namespaces (check 
-  out `k8s_ns` variable), and for individual clusters
+  out `namespace` variable), and for individual clusters
 - you can have a global config file at the root of the stacks folder
   (it is therefore static)
 - you can have a large number of services, you don't need to remember 
@@ -77,6 +95,7 @@ auto-root, auto-cluster, auto-namespace; and at each level, the
 generated configs take precedence over any static ones. Since the 
 files are known for each service, a helmfile can be useful to 
 capture the list of config files and their order. 
+
 
 Contributions
 =============
