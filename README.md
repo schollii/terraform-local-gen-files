@@ -12,9 +12,7 @@ helm values files and could surely be used to generate kustomize files,
 ansible files, etc. This module is especially useful to those 
 not using the kubernetes or helm providers. 
 
-![configs-with-infra-data-from-tfstate](image:docs/configs-with-infra-data-from-tfstate.png)
-
-<img style='width: 600px' src="docs/configs-with-infra-data-from-tfstate.png" />
+![image](docs/configs-with-infra-data-from-tfstate.png)
 
 The main concepts in this module "stacks", "namespaces" and "config" 
 files: 
