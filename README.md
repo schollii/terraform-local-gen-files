@@ -7,12 +7,12 @@ systems or tools separate from terraform such as helm or kubectl, but
 which depend on some infrastructure state or settings such as database
 addresses, security group ids, etc. 
 
-This module has been used in several closed source projects to generate 
+This module has been <a id="my-anchor">used</a> in several closed source projects to generate 
 helm values files and could surely be used to generate kustomize files, 
 ansible files, etc. This module is especially useful to those 
 not using the kubernetes or helm providers. 
 
-![image](docs/configs-with-infra-data-from-tfstate.png)
+<a id="image">![image](docs/configs-with-infra-data-from-tfstate.png)</a>
 
 The main concepts in this module "stacks", "namespaces" and "config" 
 files: 
@@ -104,7 +104,7 @@ typically fairly obvious: from most to least specific, ie global/base,
 auto-root, auto-cluster, auto-namespace; and at each level, the 
 generated configs take precedence over any static ones. Since the 
 files are known for each service, a helmfile can be useful to 
-capture the list of config files and their order. 
+capture the list of config files [module](#image) and their order. 
 
 
 Contributions
