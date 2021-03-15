@@ -1,3 +1,6 @@
+Overview
+--------
+
 This module makes it easy to extract terraform state at the time of
 `terraform apply` and automatically update config files used by other
 systems or tools separate from terraform such as helm or kubectl, but 
@@ -9,8 +12,13 @@ helm values files and could surely be used to generate kustomize files,
 ansible files, etc. This module is especially useful to those 
 not using the kubernetes or helm providers. 
 
+![configs-with-infra-data-from-tfstate](image:docs/configs-with-infra-data-from-tfstate.png)
+
+<img style='width: 600px' src="docs/configs-with-infra-data-from-tfstate.png" />
+
 The main concepts in this module "stacks", "namespaces" and "config" 
 files: 
+
 - a stack is an instance of a set of resources that describe a complete
   environment. Eg a VPC, subnets etc, plus an EKS cluster, plus 
   IAM, security groups, databases, lambdas, all for one environment, 
@@ -26,6 +34,10 @@ files:
   resources of the stack/namespace. This could be the values files 
   for a particular deployment of an "app" in a namespace of the 
   stack (vpc + cluster).
+
+
+Usage
+-----
 
 Using this is very simple, and best understood by looking in the
 examples folder. Simplest example: you have `YOUR_TF_MODULE/main.tf`, 
@@ -98,7 +110,7 @@ capture the list of config files and their order.
 
 
 Contributions
-=============
+-------------
 
 Contributions and requests are welcome. It could be made less 
 specific to kubernetes if there is interest. 
