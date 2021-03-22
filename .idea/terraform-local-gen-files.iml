@@ -4,10 +4,12 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/examples/complex/tf-prod/.terraform" />
       <excludeFolder url="file://$MODULE_DIR$/examples/simple/my-terraform/.terraform" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.6 (terraform-local-gen-files)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="terraform-aws-mono-s3-backends" />
+    <orderEntry type="module" module-name="land-survey" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
