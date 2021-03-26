@@ -60,6 +60,18 @@ variable "output_config_roots_no_tmpl_found" {
   default     = false
 }
 
+variable "encrypt_fileset_re" {
+  type = string
+  description = "Regular expression to identify rendered files which need to be encrypted"
+  default = "/secrets-*.yaml$"
+}
+
+variable "encrypt_command" {
+  type = string
+  description = "Command to encrypt a rendered file (the file will be appended as last arg)"
+  default = "sops -e -i"
+}
+
 variable "save_config_roots_no_tmpl_found" {
   type        = bool
   description = "If true, will create file in path.root, containing config_roots that did not have any filesets"

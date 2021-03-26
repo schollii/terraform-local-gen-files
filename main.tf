@@ -111,3 +111,17 @@ resource "local_file" "config_roots_no_tmpl_found" {
     config_roots_no_override_tmpl  = keys(local.config_roots_no_tmpl_overrides)
   })
 }
+
+resource "null_resource" "sops_encrypt_secrets" {
+  for_each = {for k,v in local.all_tmpl_files: k => v if length(regexall(var.encrypt_fileset_re, v)) > 0}
+  depends_on = [local_file.config_values]
+
+  triggers = {
+    # Only re-encrypt if the content has changed since last
+    environment_infra_yaml_updated = local_file.config_values[each.key].id
+  }
+
+  provisioner "local-exec" {
+    command = "${var.encrypt_command} ${each.value}"
+  }
+}
