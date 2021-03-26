@@ -84,7 +84,7 @@ locals {
     )
   )
   file_suffix = var.namespace_id == null ? "" : format(".%s", var.namespace_id)
-  filename = "${basename(path.module)}.${var.module_id}${local.file_suffix}.yaml"
+  filename    = "${basename(path.module)}.${var.module_id}${local.file_suffix}.yaml"
 }
 
 resource "local_file" "config_roots_no_tmpl_found" {
