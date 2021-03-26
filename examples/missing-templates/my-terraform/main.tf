@@ -1,5 +1,5 @@
 module "gen_config_values" {
-  # source = "git::https://github.com/schollii/terraform-local-gen-files.git"
+  # source = "schollii/gen-files/local"
   source = "../../.."
 
   stack_id     = "my-stack-1"

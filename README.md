@@ -57,7 +57,7 @@ kubernetes cluster:
 - in `YOUR_TF_MODULE/main.tf`, put this: 
   ```
   module "gen_helm_values" {
-    source = "git::https://github.com/schollii/terraform-local-gen-files.git"
+    source = "schollii/gen-files/local"
 
     stack_id     = "YOUR_CLUSTER_NAME"
     config_roots = ["YOUR_APP_DIR/config"]
