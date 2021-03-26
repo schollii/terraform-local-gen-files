@@ -48,6 +48,12 @@ variable "tmpl_vars" {
   description = "Template variables for substitutions"
 }
 
+variable "tmpl_render_dest_folder" {
+  type = string
+  description = "Folder in config roots for rendered templates; can be set to empty string"
+  default = "stacks"
+}
+
 variable "output_config_roots_no_tmpl_found" {
   type        = bool
   description = "If true, the config_roots_no_tmpl_found will include list of config_roots that did not have any filesets"

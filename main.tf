@@ -9,13 +9,13 @@ locals {
   tmpl_fileset_glob_base = replace(var.tmpl_fileset_glob_base, "MODULE_ID", var.module_id)
   root_tmpl_filesets_map = {
     for conf_root in local.config_roots :
-    conf_root => fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_base)
+      conf_root => fileset("${conf_root}/${var.tmpl_dir}", local.tmpl_fileset_glob_base)
   }
   root_tmpl_files = [
     for conf_root, filesets in local.root_tmpl_filesets_map : [
       for tf_name in filesets : {
         source = "${conf_root}/${var.tmpl_dir}/${tf_name}"
-        dest   = "${conf_root}/stacks/${var.stack_id}/${tf_name}"
+        dest   = "${conf_root}/${local.tmpl_render_dest_prefix}${var.stack_id}/${tf_name}"
       }
     ]
   ]
@@ -39,7 +39,7 @@ locals {
     for conf_root, filesets in local.override_tmpl_filesets_map : [
       for tf_name in filesets : {
         source = "${conf_root}/${var.tmpl_dir}/${tf_name}"
-        dest   = "${conf_root}/stacks/${tf_name}"
+        dest   = "${conf_root}/${local.tmpl_render_dest_prefix}${tf_name}"
       }
     ]
   ]
@@ -60,6 +60,13 @@ locals {
     for config_root, glob in local.config_roots_no_tmpl_base :
     config_root => concat(glob, lookup(local.config_roots_no_tmpl_overrides, config_root, []))
   }
+
+  // if the var.tmpl_render_dest_folder does not end with a /, add it
+  tmpl_render_dest_prefix = (
+    trimsuffix(var.tmpl_render_dest_folder, "/") == var.tmpl_render_dest_folder ?
+      var.tmpl_render_dest_folder
+      : "${var.tmpl_render_dest_folder}/"
+  )
 }
 
 resource "local_file" "config_values" {
